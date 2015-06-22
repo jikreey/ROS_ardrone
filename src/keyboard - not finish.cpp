@@ -39,11 +39,12 @@ int getche(void) {
 }
 
 //fungsi capture keyboard
-char m =' ';
+char m ='x';
 void ambilchar()
 {
 m = getche();
 }
+char n = 'x';
 
 int main(int argc, char** argv)
 {
@@ -95,7 +96,7 @@ int main(int argc, char** argv)
 
     //geser kanan message
                 geserka.linear.x=0.0;
-                geserka.linear.y=-0.2;
+                geserka.linear.y=-0.1;
                 geserka.linear.z=0.0;
                 geserka.angular.x=0.0;
                 geserka.angular.y=0.0;
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
 
     //geser kiri message
                 geserki.linear.x=0.0;
-                geserki.linear.y=+0.2;
+                geserki.linear.y=+0.1;
                 geserki.linear.z=0.0;
                 geserki.angular.x=0.0;
                 geserki.angular.y=0.0;
@@ -169,7 +170,7 @@ while (ros::ok()) {
             ROS_INFO("Taking off");
             ros::spinOnce();
             loop_rate.sleep();
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'l')
@@ -178,14 +179,14 @@ while (ros::ok()) {
             pub_empty_land.publish(msg); //lands the drone
             ROS_INFO("Landing");
             exit(0);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'h')
         {
             ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         /*
@@ -206,10 +207,12 @@ while (ros::ok()) {
             ROS_INFO("gerak maju");
             pub_twist.publish(maju);
             maju.linear.x =+0.2;
-            ambilchar();
+            m = 'x';
             }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 's' )
@@ -218,29 +221,40 @@ while (ros::ok()) {
             ROS_INFO("gerak mundur");
             pub_twist.publish(mundur);
             mundur.linear.x =-0.2;
+            m = 'x';
             }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'd' )
         {
+            while(m == 'd' ){
             ROS_INFO("gerak kanan");
-            pub_twist.publish(maju);
-            geserka.linear.y =-0.5;
-            sleep(1);
+            pub_twist.publish(geserka);
+            geserka.linear.y =-0.2;
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'a' )
         {
+            while(m == 'a' ){
             ROS_INFO("gerak kiri");
-            pub_twist.publish(mundur);
-            geserki.linear.y =+0.5;
-            sleep(1);
+            pub_twist.publish(geserki);
+            geserki.linear.y =+0.2;
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'e' )
@@ -250,7 +264,7 @@ while (ros::ok()) {
             rotasika.angular.z =+0.2;
             sleep(1);
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'q' )
@@ -260,7 +274,7 @@ while (ros::ok()) {
             rotasiki.angular.z =-0.2;
             sleep(1);
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'i' )
@@ -270,7 +284,7 @@ while (ros::ok()) {
             naik.linear.z += 1;
             sleep(1);
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
         if(m == 'k' )
@@ -280,14 +294,9 @@ while (ros::ok()) {
             turun.linear.z += -1;
             sleep(1);
             pub_twist.publish(hover);
-            m = ' ';
+            m = 'x';
         }
 
-        if(m!='j' || m!='l' || m!='h' || m!='r' || m!='i' || m!='k' || m!='a' || m!='d' || m!='w' || m!='s' || m!='q' || m!=' ')
-        {
-            ROS_INFO("perintah tidak ditemukan");
-            m = ' ';
-        }
 
     printf(" \n");
     ros::spinOnce();
@@ -296,3 +305,4 @@ while (ros::ok()) {
 }//ros::ok
 
 }//main
+
