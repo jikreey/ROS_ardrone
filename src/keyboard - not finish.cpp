@@ -206,7 +206,6 @@ while (ros::ok()) {
             while(m == 'w' ){
             ROS_INFO("gerak maju");
             pub_twist.publish(maju);
-            maju.linear.x =+0.2;
             m = 'x';
             }
             ambilchar();
@@ -220,7 +219,6 @@ while (ros::ok()) {
             while(m == 's' ){
             ROS_INFO("gerak mundur");
             pub_twist.publish(mundur);
-            mundur.linear.x =-0.2;
             m = 'x';
             }
             ambilchar();
@@ -234,7 +232,6 @@ while (ros::ok()) {
             while(m == 'd' ){
             ROS_INFO("gerak kanan");
             pub_twist.publish(geserka);
-            geserka.linear.y =-0.2;
             m = 'x';
             }
             ambilchar();
@@ -248,7 +245,6 @@ while (ros::ok()) {
             while(m == 'a' ){
             ROS_INFO("gerak kiri");
             pub_twist.publish(geserki);
-            geserki.linear.y =+0.2;
             m = 'x';
             }
             ambilchar();
@@ -261,7 +257,6 @@ while (ros::ok()) {
         {
             ROS_INFO("rotasi ke kanan");
             pub_twist.publish(rotasika);
-            rotasika.angular.z =+0.2;
             sleep(1);
             pub_twist.publish(hover);
             m = 'x';
@@ -271,7 +266,6 @@ while (ros::ok()) {
         {
             ROS_INFO("rotasi ke kiri");
             pub_twist.publish(rotasiki);
-            rotasiki.angular.z =-0.2;
             sleep(1);
             pub_twist.publish(hover);
             m = 'x';
@@ -281,7 +275,6 @@ while (ros::ok()) {
         {
             ROS_INFO("naik");
             pub_twist.publish(naik);
-            naik.linear.z += 1;
             sleep(1);
             pub_twist.publish(hover);
             m = 'x';
@@ -291,7 +284,6 @@ while (ros::ok()) {
         {
             ROS_INFO("turun");
             pub_twist.publish(turun);
-            turun.linear.z += -1;
             sleep(1);
             pub_twist.publish(hover);
             m = 'x';
