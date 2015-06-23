@@ -44,7 +44,6 @@ void ambilchar()
 {
 m = getche();
 }
-char n = 'x';
 
 int main(int argc, char** argv)
 {
