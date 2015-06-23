@@ -48,7 +48,7 @@ m = getche();
 int main(int argc, char** argv)
 {
 
-    printf("Manual Test Node Starting");
+    printf("Manual Test Node Starting\n");
     ros::init(argc, argv,"ARDrone_manual_test");
     ros::NodeHandle node;
     ros::Rate loop_rate(50);
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
         <<"q = rotasi kiri       h = hover\n"
         <<"e = rotasi kanan      r = reset\n"
         <<"\n"
-        <<"LET'S FLY!";
+        <<"LET'S FLY\n!";
 
 
 while (ros::ok()) {
