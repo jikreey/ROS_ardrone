@@ -117,7 +117,7 @@ int main(int argc, char** argv)
                 rotasika.linear.z=0.0;
                 rotasika.angular.x=0.0;
                 rotasika.angular.y=0.0;
-                rotasika.angular.z=-0.2;
+                rotasika.angular.z=-0.1;
 
     //rotasi kiri message
                 rotasiki.linear.x=0.0;
@@ -125,7 +125,7 @@ int main(int argc, char** argv)
                 rotasiki.linear.z=0.0;
                 rotasiki.angular.x=0.0;
                 rotasiki.angular.y=0.0;
-                rotasiki.angular.z=+0.2;
+                rotasiki.angular.z=+0.1;
 
     //naik message
                 naik.linear.x=0.0;
@@ -156,7 +156,9 @@ int main(int argc, char** argv)
         <<"d = geser kanan       j = takeoff\n"
         <<"w = maju              l = landing\n"
         <<"q = rotasi kiri       h = hover\n"
-        <<"e = rotasi kanan      r = reset\n";
+        <<"e = rotasi kanan      r = reset\n"
+        <<"\n"
+        <<"LET'S FLY!";
 
 
 while (ros::ok()) {
@@ -255,18 +257,26 @@ while (ros::ok()) {
 
         if(m == 'e' )
         {
+            while(m == 'e' ){
             ROS_INFO("rotasi ke kanan");
             pub_twist.publish(rotasika);
-            sleep(1);
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
             m = 'x';
         }
 
         if(m == 'q' )
         {
+            while(m == 'q' ){
             ROS_INFO("rotasi ke kiri");
             pub_twist.publish(rotasiki);
-            sleep(1);
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
             m = 'x';
         }
