@@ -2,7 +2,13 @@
 Dzikri Purnama
 Elektronika dan Instrumentasi - Universitas Gadjah Mada
 
-Keyboard dengan getche.
+Ardrone manual flying using keyboard.
+How to use:
+1. Run the program.
+2. Take off first.
+3. If you want to move it forward, press 'w' to make it forward then 'w' again to hover.
+4. If you don't press the same character again, it'll make the drone move continuously.
+5. Landing it, and the program will stop immadiately.
 */
 
 #include <ros/ros.h>
@@ -48,8 +54,7 @@ m = getche();
 int main(int argc, char** argv)
 {
 
-    printf("Manual Test Node Starting\n");
-    ros::init(argc, argv,"ARDrone_manual_test");
+    ros::init(argc, argv,"ARDrone keyboard manual");
     ros::NodeHandle node;
     ros::Rate loop_rate(50);
 
@@ -157,7 +162,7 @@ int main(int argc, char** argv)
         <<"q = rotasi kiri       h = hover\n"
         <<"e = rotasi kanan      r = reset\n"
         <<"\n"
-        <<"LET'S FLY\n!";
+        <<"LET'S FLY!\n";
 
 
 while (ros::ok()) {
@@ -282,18 +287,26 @@ while (ros::ok()) {
 
         if(m == 'i' )
         {
+            while(m == 'i' ){
             ROS_INFO("naik");
             pub_twist.publish(naik);
-            sleep(1);
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
             m = 'x';
         }
 
         if(m == 'k' )
         {
+            while(m == 'k' ){
             ROS_INFO("turun");
             pub_twist.publish(turun);
-            sleep(1);
+            m = 'x';
+            }
+            ambilchar();
+            ROS_INFO("hover");
             pub_twist.publish(hover);
             m = 'x';
         }
