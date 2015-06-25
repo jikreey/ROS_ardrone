@@ -5,9 +5,8 @@ Ardrone manual flying using keyboard.
 How to use:
 1. Run the program.
 2. Take off first.
-3. If you want to move it forward, press 'w' to make it forward then 'w' again to hover.
-4. If you don't press the same character again, it'll make the drone move continuously.
-5. Landing it, and the program will stop immadiately.
+3. Control it using "a,s,d,w,q,e,i,k".
+4. Landing it, and the program will stop immadiately.
 */
 
 #include <ros/ros.h>
