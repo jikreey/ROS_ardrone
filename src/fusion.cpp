@@ -1,7 +1,6 @@
 /*
 Dzikri Purnama
 Elektronika dan Instrumentasi - Universitas Gadjah Mada
-
 Keyboard dengan getche.
 */
 
@@ -163,7 +162,6 @@ int main(int argc, char** argv)
     +linear.y: move left
     -linear.z: move down
     +linear.z: move up
-
     -angular.z: turn left
     +angular.z: turn right
 */
@@ -263,6 +261,11 @@ while (ros::ok())
     if(kbhit())
     {
         m=readch();
+        while(1){
+            if(kbhit())
+            {
+                m=readch();
+
         switch(m)
         {
         case 'j':
@@ -336,7 +339,14 @@ while (ros::ok())
             m = ' ';
             break;
         }
+        if(!kbhit()){
+        ROS_INFO("hover");
+        pub_twist.publish(hover);
+        };
     }
+        }
+    }
+
     ros::spinOnce();
     loop_rate.sleep();
 
