@@ -1,3 +1,10 @@
+/*
+Dzikri Purnama
+Elektronika dan Instrumentasi - Universitas Gadjah Mada
+
+Keyboard dengan getche.
+*/
+
 #include <ros/ros.h>
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -13,40 +20,100 @@
 #include <iostream>
 #include <opencv2/core/core.hpp>
 
-
-using namespace cv;
 using namespace std;
+using namespace cv;
 
-std_msgs::Empty msg;
-geometry_msgs::Twist twist_msg;
-geometry_msgs::Twist hover;
-geometry_msgs::Twist maju;
-geometry_msgs::Twist mundur;
-geometry_msgs::Twist rotasika;
-geometry_msgs::Twist rotasiki;
-geometry_msgs::Twist geserka;
-geometry_msgs::Twist geserki;
-geometry_msgs::Twist naik;
-geometry_msgs::Twist turun;
+    geometry_msgs::Twist twist_msg;
+    geometry_msgs::Twist hover;
+    geometry_msgs::Twist maju;
+    geometry_msgs::Twist mundur;
+    geometry_msgs::Twist rotasika;
+    geometry_msgs::Twist rotasiki;
+    geometry_msgs::Twist geserka;
+    geometry_msgs::Twist geserki;
+    geometry_msgs::Twist naik;
+    geometry_msgs::Twist turun;
+    std_msgs::Empty msg;
 
-
-int getche(void) {
-struct termios oldattr, newattr;
-int ch;
-tcgetattr( STDIN_FILENO, &oldattr );
-newattr = oldattr;
-newattr.c_lflag &= ~( ICANON );
-tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-ch = getchar();
-tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
-return ch;
+static struct termios initial_settings, new_settings;
+static int peek_character = -1;
+void init_keyboard()
+{
+    tcgetattr(0,&initial_settings);
+    new_settings = initial_settings;
+    new_settings.c_lflag &= ~ICANON;
+    new_settings.c_lflag &= ~ECHO;
+    new_settings.c_lflag &= ~ISIG;
+    new_settings.c_cc[VMIN] = 1;
+    new_settings.c_cc[VTIME] = 0;
+    tcsetattr(0, TCSANOW, &new_settings);
 }
 
-//fungsi capture keyboard
-char m ='x';
-void ambilchar()
+void close_keyboard()
 {
-m = getche();
+    tcsetattr(0, TCSANOW, &initial_settings);
+}
+
+int kbhit()
+{
+    char ch;
+    int nread;
+
+    if(peek_character != -1)
+        return 1;
+    new_settings.c_cc[VMIN]=0;
+    tcsetattr(0, TCSANOW, &new_settings);
+    nread = read(0,&ch,1);
+    new_settings.c_cc[VMIN]=1;
+    tcsetattr(0, TCSANOW, &new_settings);
+
+    if(nread == 1) {
+        peek_character = ch;
+        return 1;
+    }
+    return 0;
+}
+
+int readch()
+{
+    char ch;
+
+    if(peek_character != -1) {
+        ch = peek_character;
+        peek_character = -1;
+        return ch;
+    }
+    read(0,&ch,1);
+    return ch;
+}
+
+char getch()
+{
+    char buf=0;
+    struct termios old ={0};
+    if(tcgetattr(0,&old)<0)perror("tcsetattr()");
+    old.c_lflag &= ~ICANON;
+    old.c_lflag &= ~ECHO;
+    old.c_cc[VMIN]=1;
+    old.c_cc[VTIME]=0;
+    if(tcsetattr(0,TCSANOW,&old)<0)perror("tcsetattr ICANON");
+    if(read(0,&buf,1)<0)perror("read()");
+    old.c_lflag |= ICANON;
+    old.c_lflag |= ECHO;
+    if(tcsetattr(0,TCSADRAIN,&old)<0)perror("tcsetattr ~ICANON");
+    return (buf);
+}
+
+int getche(void) {
+    struct termios oldattr, newattr;
+    int ch=0;
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    return ch;
 }
 
 void chatterCallback( const sensor_msgs::ImageConstPtr & newimage)
@@ -64,11 +131,23 @@ void chatterCallback( const sensor_msgs::ImageConstPtr & newimage)
 
 }
 
-int main( int argc, char **argv)
+//fungsi capture keyboard
+char m =' ';
+void ambilchar()
 {
-    ros::init(argc, argv, "terbang");
-    ros::NodeHandle camera;
+init_keyboard();
+if(kbhit())m=readch();
+//else if(!kbhit())m='x';
+//close_keyboard();
+}
+
+int main(int argc, char** argv)
+{
+
+    printf("Manual Test Node Starting");
+    ros::init(argc, argv,"ARDrone_manual_test");
     ros::NodeHandle node;
+    ros::NodeHandle camera;
     ros::Rate loop_rate(50);
     image_transport::ImageTransport it(camera);
     image_transport::Subscriber it_sub = it.subscribe("ardrone/image_raw", 1, chatterCallback);
@@ -84,6 +163,7 @@ int main( int argc, char **argv)
     +linear.y: move left
     -linear.z: move down
     +linear.z: move up
+
     -angular.z: turn left
     +angular.z: turn right
 */
@@ -114,7 +194,7 @@ int main( int argc, char **argv)
 
     //geser kanan message
                 geserka.linear.x=0.0;
-                geserka.linear.y=-0.1;
+                geserka.linear.y=-0.2;
                 geserka.linear.z=0.0;
                 geserka.angular.x=0.0;
                 geserka.angular.y=0.0;
@@ -122,7 +202,7 @@ int main( int argc, char **argv)
 
     //geser kiri message
                 geserki.linear.x=0.0;
-                geserki.linear.y=+0.1;
+                geserki.linear.y=+0.2;
                 geserki.linear.z=0.0;
                 geserki.angular.x=0.0;
                 geserki.angular.y=0.0;
@@ -135,7 +215,7 @@ int main( int argc, char **argv)
                 rotasika.linear.z=0.0;
                 rotasika.angular.x=0.0;
                 rotasika.angular.y=0.0;
-                rotasika.angular.z=-0.1;
+                rotasika.angular.z=-0.2;
 
     //rotasi kiri message
                 rotasiki.linear.x=0.0;
@@ -143,7 +223,7 @@ int main( int argc, char **argv)
                 rotasiki.linear.z=0.0;
                 rotasiki.angular.x=0.0;
                 rotasiki.angular.y=0.0;
-                rotasiki.angular.z=+0.1;
+                rotasiki.angular.z=+0.2;
 
     //naik message
                 naik.linear.x=0.0;
@@ -174,163 +254,92 @@ int main( int argc, char **argv)
         <<"d = geser kanan       j = takeoff\n"
         <<"w = maju              l = landing\n"
         <<"q = rotasi kiri       h = hover\n"
-        <<"e = rotasi kanan      r = reset\n"
-        <<"\n"
-        <<"LET'S FLY!\n";
+        <<"e = rotasi kanan      r = reset\n";
 
-
-
-    while(ros::ok())
+char m=' ';
+while (ros::ok())
+{
+    init_keyboard();
+    if(kbhit())
     {
-        ambilchar();
-//        m = 'x';
-
-        if(m == 'j')
+        m=readch();
+        switch(m)
         {
+        case 'j':
             pub_empty_takeoff.publish(msg); //launches the drone
             pub_twist.publish(hover); //drone is flat
             ROS_INFO("Taking off");
             ros::spinOnce();
             loop_rate.sleep();
-            m = 'x';
-        }
+            m=' ';
+            break;
 
-        if(m == 'l')
-        {
+        case 'l':
             pub_twist.publish(hover); //drone is flat
             pub_empty_land.publish(msg); //lands the drone
             ROS_INFO("Landing");
             exit(0);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'h')
-        {
+        case 'h':
             ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        /*
-            -linear.x: move backward
-            +linear.x: move forward
-            -linear.y: move right
-            +linear.y: move left
-            -linear.z: move down
-            +linear.z: move up
-            -angular.z: turn left
-            +angular.z: turn right
-        */
-
-        if(m == 'w' )
-        {
-            while(m == 'w' ){
+        case 'w':
             ROS_INFO("gerak maju");
             pub_twist.publish(maju);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m=' ';
+            break;
 
-        if(m == 's' )
-        {
-            while(m == 's' ){
+        case 's':
             ROS_INFO("gerak mundur");
             pub_twist.publish(mundur);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'd' )
-        {
-            while(m == 'd' ){
+        case 'd':
             ROS_INFO("gerak kanan");
             pub_twist.publish(geserka);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'a' )
-        {
-            while(m == 'a' ){
+        case 'a':
             ROS_INFO("gerak kiri");
             pub_twist.publish(geserki);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'e' )
-        {
-            while(m == 'e' ){
+        case 'e':
             ROS_INFO("rotasi ke kanan");
             pub_twist.publish(rotasika);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'q' )
-        {
-            while(m == 'q' ){
+        case 'q':
             ROS_INFO("rotasi ke kiri");
             pub_twist.publish(rotasiki);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'i' )
-        {
-            while(m == 'i' ){
+        case 'i':
             ROS_INFO("naik");
             pub_twist.publish(naik);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
-        }
+            m = ' ';
+            break;
 
-        if(m == 'k' )
-        {
-            while(m == 'k' ){
+        case 'k':
             ROS_INFO("turun");
             pub_twist.publish(turun);
-            m = 'x';
-            }
-            ambilchar();
-            ROS_INFO("hover");
-            pub_twist.publish(hover);
-            m = 'x';
+            m = ' ';
+            break;
         }
-
-
-    printf(" \n");
+    }
     ros::spinOnce();
     loop_rate.sleep();
-    }
 
-    return 0;
-}
+}//ros::ok
+
+}//main
