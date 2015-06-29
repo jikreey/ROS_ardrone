@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(keyboard_drone)
+
+find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  image_transport
+  roscpp
+  sensor_msgs
+  std_msgs
+  geometry_msgs
+  message_generation
+)
+
+
+find_package( OpenCV REQUIRED )
+find_package(SDL REQUIRED)
+set(LIBS ${SDL_LIBRARY})
+
+catkin_package(
+CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_runtime
+DEPENDS ${LIBS}
+)
+
+#######################################
+## Declare ROS messages and services ##
+#######################################
+
+add_message_files(
+  FILES
+  Key.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+###################################
+## catkin specific configuration ##
+###################################
+
+include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
+
+add_executable(exe src/main.cpp)
+add_dependencies(exe keyboard_drone_generate_messages_cpp)
+target_link_libraries(exe 
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${LIBS}
+)
+
+install(TARGETS keyboard
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
