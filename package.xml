@@ -1,68 +1,59 @@
-<?xml version="1.0"?>
-<package>
-  <name>keyboard_drone</name>
-  <version>0.0.0</version>
-  <description>The keyboard_drone package</description>
+cmake_minimum_required(VERSION 2.8.3)
+project(keyboard_drone)
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="root@todo.todo">root</maintainer>
-
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
+  image_transport
+  roscpp
+  sensor_msgs
+  std_msgs
+  geometry_msgs
+  message_generation
+)
 
 
-  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/beginner_tutorials</url> -->
+find_package( OpenCV REQUIRED )
+find_package(SDL REQUIRED)
+set(LIBS ${SDL_LIBRARY})
 
+catkin_package(
+CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs message_runtime
+DEPENDS ${LIBS}
+)
 
-  <!-- Author tags are optional, mutiple are allowed, one per tag -->
-  <!-- Authors do not have to be maintianers, but could be -->
-  <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+#######################################
+## Declare ROS messages and services ##
+#######################################
 
+add_message_files(
+  FILES
+  Key.msg
+)
 
-  <!-- The *_depend tags are used to specify dependencies -->
-  <!-- Dependencies can be catkin packages or system dependencies -->
-  <!-- Examples: -->
-  <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
-  <!-- Use buildtool_depend for build tool packages: -->
-  <!--   <buildtool_depend>catkin</buildtool_depend> -->
-  <!-- Use run_depend for packages you need at runtime: -->
-  <!--   <run_depend>message_runtime</run_depend> -->
-  <!-- Use test_depend for packages you need only for testing: -->
-  <!--   <test_depend>gtest</test_depend> -->
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>image_transport</build_depend>
-  <build_depend>cv_bridge</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+###################################
+## catkin specific configuration ##
+###################################
 
-  <build_depend>message_generation</build_depend>
-  <build_depend>sdl</build_depend>
-  <build_depend>ruby</build_depend>
-  <run_depend>sdl</run_depend>
+include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
 
-  <run_depend>roscpp</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>image_transport</run_depend>
-  <run_depend>cv_bridge</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>message_runtime</run_depend>
+add_executable(exe src/main.cpp)
+add_dependencies(exe keyboard_drone_generate_messages_cpp)
+target_link_libraries(exe 
+  ${catkin_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${LIBS}
+)
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
-</package>
+install(TARGETS keyboard
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
