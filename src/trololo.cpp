@@ -1,2 +1,2 @@
-150 + 5 + 550 (bersama)
-100 (mandiri)
+150 + 35 + 550 + 800 (bersama)
+100 + 300 (mandiri)
