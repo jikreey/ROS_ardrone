@@ -1,7 +1,7 @@
 /*
 Dzikri Purnama
 Elektronika dan Instrumentasi - Universitas Gadjah Mada
-Keyboard dengan getche.
+Keyboard + PCD
 */
 
 #include <ros/ros.h>
@@ -36,6 +36,7 @@ using namespace cv;
 
 static struct termios initial_settings, new_settings;
 static int peek_character = -1;
+
 void init_keyboard()
 {
     tcgetattr(0,&initial_settings);
@@ -83,35 +84,6 @@ int readch()
         return ch;
     }
     read(0,&ch,1);
-    return ch;
-}
-
-char getch()
-{
-    char buf=0;
-    struct termios old ={0};
-    if(tcgetattr(0,&old)<0)perror("tcsetattr()");
-    old.c_lflag &= ~ICANON;
-    old.c_lflag &= ~ECHO;
-    old.c_cc[VMIN]=1;
-    old.c_cc[VTIME]=0;
-    if(tcsetattr(0,TCSANOW,&old)<0)perror("tcsetattr ICANON");
-    if(read(0,&buf,1)<0)perror("read()");
-    old.c_lflag |= ICANON;
-    old.c_lflag |= ECHO;
-    if(tcsetattr(0,TCSADRAIN,&old)<0)perror("tcsetattr ~ICANON");
-    return (buf);
-}
-
-int getche(void) {
-    struct termios oldattr, newattr;
-    int ch=0;
-    tcgetattr( STDIN_FILENO, &oldattr );
-    newattr = oldattr;
-    newattr.c_lflag &= ~( ICANON );
-    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-    ch = getchar();
-    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
     return ch;
 }
 
@@ -192,7 +164,7 @@ int main(int argc, char** argv)
 
     //geser kanan message
                 geserka.linear.x=0.0;
-                geserka.linear.y=-0.2;
+                geserka.linear.y=-0.1;
                 geserka.linear.z=0.0;
                 geserka.angular.x=0.0;
                 geserka.angular.y=0.0;
@@ -200,7 +172,7 @@ int main(int argc, char** argv)
 
     //geser kiri message
                 geserki.linear.x=0.0;
-                geserki.linear.y=+0.2;
+                geserki.linear.y=+0.1;
                 geserki.linear.z=0.0;
                 geserki.angular.x=0.0;
                 geserki.angular.y=0.0;
@@ -213,7 +185,7 @@ int main(int argc, char** argv)
                 rotasika.linear.z=0.0;
                 rotasika.angular.x=0.0;
                 rotasika.angular.y=0.0;
-                rotasika.angular.z=-0.2;
+                rotasika.angular.z=-0.1;
 
     //rotasi kiri message
                 rotasiki.linear.x=0.0;
@@ -221,7 +193,7 @@ int main(int argc, char** argv)
                 rotasiki.linear.z=0.0;
                 rotasiki.angular.x=0.0;
                 rotasiki.angular.y=0.0;
-                rotasiki.angular.z=+0.2;
+                rotasiki.angular.z=+0.1;
 
     //naik message
                 naik.linear.x=0.0;
