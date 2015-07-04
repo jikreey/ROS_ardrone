@@ -1,22 +1,26 @@
 /*
 Dzikri Purnama
 Elektronika dan Instrumentasi - Universitas Gadjah Mada
-Ardrone manual flying using keyboard.
-How to use:
-1. Run the program.
-2. Take off first.
-3. Control it using "a,s,d,w,q,e,i,k".
-4. Landing it, and the program will stop immadiately.
+Keyboard dengan getche.
 */
 
 #include <ros/ros.h>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <image_transport/image_transport.h>
+#include <sensor_msgs/image_encodings.h>
+#include <cv_bridge/cv_bridge.h>
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Twist.h>
-#include <stdio.h>
 #include <termios.h>
+#include <cv.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
+#include <opencv2/core/core.hpp>
 
 using namespace std;
+using namespace cv;
 
     geometry_msgs::Twist twist_msg;
     geometry_msgs::Twist hover;
@@ -83,21 +87,41 @@ int readch()
     return ch;
 }
 
+void chatterCallback( const sensor_msgs::ImageConstPtr & newimage)
+{
+    Mat frame;
+
+    cv_bridge::CvImagePtr bridge;
+    bridge = cv_bridge::toCvCopy(newimage, sensor_msgs::image_encodings::BGR8);
+    frame = bridge->image;
+
+    imshow("camera",frame);
+
+    int pressedkey;
+    pressedkey = waitKey(1);
+
+}
 
 //fungsi capture keyboard
-char m ='x';
+char m =' ';
 void ambilchar()
 {
-    init_keyboard();
-    if(kbhit())m=readch();
+init_keyboard();
+if(kbhit())m=readch();
+//else if(!kbhit())m='x';
+//close_keyboard();
 }
 
 int main(int argc, char** argv)
 {
 
-    ros::init(argc, argv,"ARDrone keyboard manual");
+    printf("Manual Test Node Starting");
+    ros::init(argc, argv,"ARDrone_manual_test");
     ros::NodeHandle node;
+    ros::NodeHandle camera;
     ros::Rate loop_rate(50);
+    image_transport::ImageTransport it(camera);
+    image_transport::Subscriber it_sub = it.subscribe("ardrone/image_raw", 1, chatterCallback);
 
     ros::Publisher pub_empty_takeoff;
     ros::Publisher pub_empty_land;
@@ -200,13 +224,11 @@ int main(int argc, char** argv)
         <<"d = geser kanan       j = takeoff\n"
         <<"w = maju              l = landing\n"
         <<"q = rotasi kiri       h = hover\n"
-        <<"e = rotasi kanan      r = reset\n"
-        <<"\n"
-        <<"LET'S FLY!\n";
+        <<"e = rotasi kanan      r = reset\n";
 
-
-while (ros::ok()) {
-
+char m=' ';
+while (ros::ok())
+{
     init_keyboard();
     if(kbhit())
     {
@@ -219,7 +241,7 @@ while (ros::ok()) {
             ROS_INFO("Taking off");
             ros::spinOnce();
             loop_rate.sleep();
-            m='x';
+            m=' ';
             break;
 
         case 'l':
@@ -227,61 +249,61 @@ while (ros::ok()) {
             pub_empty_land.publish(msg); //lands the drone
             ROS_INFO("Landing");
             exit(0);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'h':
             ROS_INFO("hover");
             pub_twist.publish(hover);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'w':
             ROS_INFO("gerak maju");
             pub_twist.publish(maju);
-            m='x';
+            m=' ';
             break;
 
         case 's':
             ROS_INFO("gerak mundur");
             pub_twist.publish(mundur);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'd':
             ROS_INFO("gerak kanan");
             pub_twist.publish(geserka);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'a':
             ROS_INFO("gerak kiri");
             pub_twist.publish(geserki);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'e':
             ROS_INFO("rotasi ke kanan");
             pub_twist.publish(rotasika);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'q':
             ROS_INFO("rotasi ke kiri");
             pub_twist.publish(rotasiki);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'i':
             ROS_INFO("naik");
             pub_twist.publish(naik);
-            m = 'x';
+            m = ' ';
             break;
 
         case 'k':
             ROS_INFO("turun");
             pub_twist.publish(turun);
-            m = 'x';
+            m = ' ';
             break;
         }
     }
