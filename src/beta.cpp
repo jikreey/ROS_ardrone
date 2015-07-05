@@ -102,7 +102,6 @@ void heightReading(const ardrone_autonomy::Navdata& msg_in)
     drone_altd = msg_in.altd;
     velinear_x = msg_in.magX;
     velinear_y = msg_in.magY;
-    cout << "ketinggian:"<<drone_altd<<"mm"<<endl;
 }
 
 //fungsi capture keyboard
@@ -220,17 +219,6 @@ int main(int argc, char** argv)
         pub_empty_land    = node.advertise<std_msgs::Empty>("/ardrone/land", 1);       /* Message queue length is just 1 */
         pub_empty_reset   = node.advertise<std_msgs::Empty>("/ardrone/reset", 1);      /* Message queue length is just 1 */
 
-        if(otomatis)
-        {
-            if(drone_altd<950)pub_twist.publish(naik);
-            else if(drone_altd>1050)pub_twist.publish(turun);
-            else
-            {
-                m='h';
-                cout << "kecepatan x_linear"<< velinear_x <<endl;
-                cout << "kecepatan y_linear"<< velinear_y <<endl;
-            }
-        }
 
     ROS_INFO("Starting ARdrone_test loop");
     cout<<"Map keyboard:\n"
@@ -322,15 +310,26 @@ while (ros::ok())
             break;
 
         case 'b':
-            ROS_INFO("Otomatis");
             if(otomatis)otomatis=false;
             else if(!otomatis)otomatis=true;
             m = ' ';
             break;
-
         }
-
     }
+
+    if(otomatis)
+    {
+        if(drone_altd<700){pub_twist.publish(naik);ROS_INFO("naik");}
+        else if(drone_altd>900){pub_twist.publish(turun);ROS_INFO("turun");}
+        else
+        {
+            pub_twist.publish(hover);ROS_INFO("hover");
+            cout << "kecepatan x_linear"<< velinear_x <<endl;
+            cout << "kecepatan y_linear"<< velinear_y <<endl;
+        }
+        cout << "ketinggian:"<<drone_altd<<"mm"<<endl;
+    }
+
     ros::spinOnce();
     loop_rate.sleep();
 
